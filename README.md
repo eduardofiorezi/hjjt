@@ -22,7 +22,7 @@ O build valida o `sedes.yaml`: dia da semana ou horário em formato errado faz o
 
 ## Publicação
 
-O workflow `.github/workflows/deploy.yml` publica no GitHub Pages a cada push na branch `main`.
+O workflow `.github/workflows/deploy.yml` publica no GitHub Pages a cada push na branch `master`.
 Antes da primeira publicação, mude em **Settings → Pages → Source** para **GitHub Actions**.
 O site antigo continua na branch `gh-pages` até essa troca.
 
