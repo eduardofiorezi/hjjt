@@ -1,0 +1,265 @@
+# Sedes da HJJT.
+# Fonte: mapa "MAPA HJJT - HORSE JIU-JITSU TEAM" no Google My Maps (out/2026).
+# Bairro e cidade vieram das coordenadas (OpenStreetMap) — confira e ajuste se precisar.
+#
+# Como editar:
+#   id            vira o endereço da página: /sedes/<id>/  (minúsculas, sem acento, com hífens)
+#   coordenadas   [latitude, longitude] — no Google Maps, clique com o botão direito no local e copie
+#   endereco      opcional, rua e número (aparece na página e ajuda o Google)
+#   telefone      do jeito que deve aparecer; celulares ganham botão de WhatsApp
+#   instagram     só o usuário, sem @
+#   horarios      dias: seg, ter, qua, qui, sex, sab, dom
+#                 inicio/fim: "HH:MM"   turma e professor são opcionais
+
+- id: ct-pura-vida
+  nome: CT Pura Vida
+  bairro: Centro
+  cidade: Londrina
+  uf: PR
+  coordenadas: [-23.3201763, -51.157473]
+  responsaveis: [Matile]
+  telefone: (43) 3334-4030
+  instagram: ct__puravida
+  horarios:
+    - { dias: [seg, qua, sex], inicio: "12:15" }
+    - { dias: [seg, ter, qua, qui], inicio: "17:45" }
+    - { dias: [seg, ter, qua, qui], inicio: "19:00" }
+    - { dias: [sex], inicio: "18:00" }
+  observacoes:
+    - Nova turma às 6h30. Confirme os dias com o responsável.
+
+- id: academia-off
+  nome: Academia OFF
+  bairro: Centro
+  cidade: Londrina
+  uf: PR
+  coordenadas: [-23.3124841, -51.166836]
+  responsaveis: [Kabuto]
+  instagram: offacademia
+  horarios:
+    - { dias: [seg, qua, sex], inicio: "20:00" }
+    - { dias: [seg, qua], inicio: "21:15" }
+    - { dias: [ter, qui], inicio: "12:15" }
+    - { dias: [sab], inicio: "10:00" }
+
+- id: skyfit-hugo-cabral
+  nome: Skyfit Hugo Cabral
+  bairro: Centro
+  cidade: Londrina
+  uf: PR
+  coordenadas: [-23.3081246, -51.1638788]
+  responsaveis: [Ivo]
+  horarios:
+    - { dias: [seg, qua], inicio: "21:30" }
+    - { dias: [sex], inicio: "19:30" }
+    - { dias: [sab], inicio: "09:00" }
+
+- id: antares
+  nome: Antares
+  bairro: Brasília
+  cidade: Londrina
+  uf: PR
+  coordenadas: [-23.3201431, -51.1190775]
+  responsaveis: [João V. Montini]
+  horarios:
+    - { dias: [seg, ter, qui], inicio: "18:30" }
+
+- id: black-scorpion
+  nome: Academia Black Scorpion
+  bairro: Brasília
+  cidade: Londrina
+  uf: PR
+  coordenadas: [-23.3191228, -51.1365985]
+  responsaveis: [Vinícius]
+  telefone: (43) 99859-1418
+  instagram: blackscorpionoficial
+  horarios:
+    - { dias: [seg, qua, sex], inicio: "20:45" }
+
+- id: deppen-soe
+  nome: DEPPEN — Base Operacional do SOE
+  bairro: Cafezal
+  cidade: Londrina
+  uf: PR
+  coordenadas: [-23.3636891, -51.1534869]
+  responsaveis: [Erick]
+  horarios:
+    - { dias: [seg, ter, qua, qui, sex], inicio: "17:30" }
+
+- id: last-round
+  nome: Last Round Fight Academy
+  bairro: Jardim Petrópolis
+  cidade: Londrina
+  uf: PR
+  coordenadas: [-23.3326091, -51.1521325]
+  responsaveis: [Raiana, Lucas, João Vitor]
+  telefone: (43) 98825-2869
+  instagram: lastround_fightacademy
+  horarios:
+    - { dias: [seg, ter, qua, qui, sex], inicio: "06:00" }
+    - { dias: [seg, qua, sex], inicio: "10:00", turma: Kids }
+    - { dias: [seg, ter, qua, qui, sex], inicio: "12:15" }
+    - { dias: [seg, qua, sex], inicio: "16:30", turma: Kids }
+    - { dias: [seg, ter, qua, qui, sex], inicio: "18:30" }
+    - { dias: [ter, qui], inicio: "19:30" }
+    - { dias: [seg, qua, sex], inicio: "19:30", turma: Feminino }
+    - { dias: [sab], inicio: "10:00" }
+  observacoes:
+    - "19h30: treino família."
+
+- id: zona-norte-neyzynho
+  nome: Zona Norte Neyzynho BJJ
+  bairro: Cinco Conjuntos
+  cidade: Londrina
+  uf: PR
+  coordenadas: [-23.2674037, -51.1418985]
+  horarios:
+    - { dias: [ter, qui], inicio: "19:30" }
+    - { dias: [qua], inicio: "20:30" }
+
+- id: estacao-fitness
+  nome: Academia Estação Fitness
+  bairro: Bandeirantes
+  cidade: Londrina
+  uf: PR
+  coordenadas: [-23.3059512, -51.199907]
+  responsaveis: [Diego]
+  instagram: diegosilvapjj
+  horarios:
+    - { dias: [ter, qui], inicio: "20:10" }
+
+- id: suzuki-dojo
+  nome: Suzuki Dojo
+  bairro: Champagnat
+  cidade: Londrina
+  uf: PR
+  coordenadas: [-23.3120761, -51.1833318]
+  responsaveis: [Paulo Horse]
+  instagram: dojosuzuki
+  horarios: []
+
+- id: neodojo
+  nome: Neodojo Judô & Jiu-Jitsu
+  bairro: Presidente
+  cidade: Londrina
+  uf: PR
+  coordenadas: [-23.3061477, -51.1773518]
+  responsaveis: [Kabuto]
+  telefone: (43) 99162-9962
+  instagram: neodojolondrina
+  horarios:
+    - { dias: [seg], inicio: "12:00", turma: Adulto, professor: Rodrigo Peron }
+    - { dias: [ter], inicio: "19:45", turma: Adulto, professor: Giovanne Scaglione }
+    - { dias: [qua], inicio: "12:00", turma: Adulto, professor: Silvio Fukagawa }
+    - { dias: [qui], inicio: "19:45", turma: Adulto, professor: Kaio Pitsilos }
+    - { dias: [sex], inicio: "12:00", turma: No Gi, professor: Silvio Fukagawa }
+
+- id: kyowa-aikidojo
+  nome: Kyowa Aikidojo
+  bairro: Presidente
+  cidade: Londrina
+  uf: PR
+  coordenadas: [-23.3061413, -51.1779295]
+  responsaveis: [Jeferson Sensei]
+  horarios: []
+
+- id: urai
+  nome: HJJT Uraí
+  bairro: Centro
+  cidade: Uraí
+  uf: PR
+  coordenadas: [-23.2015692, -50.7931244]
+  responsaveis: [Gil, Tomita]
+  telefone: (43) 98825-2869
+  instagram: hjjt.urai
+  horarios:
+    - { dias: [ter, qui], inicio: "19:00" }
+
+- id: studio-fit-life
+  nome: Studio Fit Life
+  cidade: Bela Vista do Paraíso
+  uf: PR
+  coordenadas: [-23.0102501, -51.2368941]
+  responsaveis: [Lucas Berzotti (Bombeiro)]
+  telefone: (43) 99602-7516
+  instagram: jiujitsu_bvp
+  horarios:
+    - { dias: [ter, qui], inicio: "18:00", turma: Kids }
+    - { dias: [ter, qui], inicio: "19:30", turma: Adulto }
+    - { dias: [sab], inicio: "16:00", fim: "18:00", turma: Geral }
+
+- id: pattaya-fight-camp
+  nome: Academia Pattaya Fight Camp
+  cidade: Primeiro de Maio
+  uf: PR
+  coordenadas: [-22.8495645, -51.0146028]
+  responsaveis: [Lucas Berzotti (Bombeiro)]
+  telefone: (43) 99602-7516
+  instagram: jiujitsu_bvp
+  horarios:
+    - { dias: [seg, qua, sex], inicio: "12:00", turma: Adulto }
+    - { dias: [ter, qui], inicio: "09:30", turma: Kids }
+    - { dias: [ter, qui], inicio: "16:00", turma: Kids }
+
+- id: espaco-fitness
+  nome: Espaço Fitness Academia
+  cidade: Alvorada do Sul
+  uf: PR
+  coordenadas: [-22.7822561, -51.2324783]
+  responsaveis: [Lucas Berzotti (Bombeiro)]
+  telefone: (43) 99602-7516
+  instagram: jiujitsu_bvp
+  horarios:
+    - { dias: [seg, qua], inicio: "19:45" }
+
+- id: ibipora
+  nome: HJJT Ibiporã
+  bairro: Centro
+  cidade: Ibiporã
+  uf: PR
+  coordenadas: [-23.2705229, -51.0510039]
+  responsaveis: [Eduardo Tomita]
+  telefone: (43) 98447-8892
+  instagram: eduardotomita1
+  horarios:
+    - { dias: [ter, qui], inicio: "20:00" }
+    - { dias: [sab], inicio: "15:00", turma: No Gi }
+
+- id: start-plus
+  nome: Start Plus Centro de Treinamento
+  cidade: Sertanópolis
+  uf: PR
+  coordenadas: [-23.0617774, -51.0363978]
+  responsaveis: [Lucas Berzotti (Bombeiro)]
+  telefone: (43) 99602-7516
+  instagram: jiujitsu_bvp
+  horarios:
+    - { dias: [seg, qua], inicio: "19:30" }
+    - { dias: [sex], inicio: "19:00" }
+
+- id: associacao-refugio
+  nome: Associação Refúgio (ONG)
+  bairro: Parque Residencial Ana Rosa
+  cidade: Cambé
+  uf: PR
+  coordenadas: [-23.2703984, -51.2559725]
+  responsaveis: [Felipe Youssef]
+  telefone: (43) 99134-0660
+  instagram: osc_refugio
+  site: https://www.refugio.org.br/oficinas/jiu-j%C3%ADtsu
+  horarios:
+    - { dias: [seg, qua], inicio: "09:30", fim: "11:15" }
+    - { dias: [seg, qua], inicio: "13:30", fim: "16:15" }
+
+- id: fox-fit
+  nome: Fox Fit Academia
+  bairro: Perus
+  cidade: São Paulo
+  uf: SP
+  coordenadas: [-23.4068288, -46.7574066]
+  responsaveis: [Seiichi Hissamura]
+  telefone: (11) 5198-2122
+  instagram: foxfitperus
+  horarios:
+    - { dias: [ter, qui], inicio: "20:30" }
+    - { dias: [sex], inicio: "20:30", turma: MMA }

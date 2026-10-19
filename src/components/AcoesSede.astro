@@ -1,0 +1,53 @@
+---
+import Icone from './Icone.astro';
+import { ehCelular, linkInstagram, linkRota, linkTelefone, linkWhatsApp, type Sede } from '../lib/sedes';
+
+interface Props {
+  sede: Sede;
+  /** Na lista mostramos só o essencial; na página da sede, tudo. */
+  completo?: boolean;
+}
+
+const { sede, completo = false } = Astro.props;
+const { telefone, instagram, site, coordenadas, nome } = sede.data;
+const celular = telefone && ehCelular(telefone);
+---
+
+<div class="acoes">
+  {
+    celular && (
+      <a class="acao acao--forte" href={linkWhatsApp(telefone, nome)} target="_blank" rel="noopener">
+        <Icone nome="whatsapp" />
+        WhatsApp
+      </a>
+    )
+  }
+  {
+    telefone && (completo || !celular) && (
+      <a class="acao" href={linkTelefone(telefone)}>
+        <Icone nome="telefone" />
+        {telefone}
+      </a>
+    )
+  }
+  {
+    instagram && (
+      <a class="acao" href={linkInstagram(instagram)} target="_blank" rel="noopener">
+        <Icone nome="instagram" />
+        {completo ? `@${instagram}` : 'Instagram'}
+      </a>
+    )
+  }
+  {
+    completo && site && (
+      <a class="acao" href={site} target="_blank" rel="noopener">
+        <Icone nome="site" />
+        Site
+      </a>
+    )
+  }
+  <a class="acao" href={linkRota(coordenadas)} target="_blank" rel="noopener">
+    <Icone nome="rota" />
+    Como chegar
+  </a>
+</div>

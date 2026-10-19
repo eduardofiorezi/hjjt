@@ -1,0 +1,334 @@
+---
+import Base from '../layouts/Base.astro';
+import { DIAS, aulasDoDia, getSedes, hora, local, regiao } from '../lib/sedes';
+
+const sedes = await getSedes();
+
+const porDia = DIAS.map((dia) => ({
+  ...dia,
+  aulas: sedes
+    .flatMap((sede) => aulasDoDia(sede, dia.id).map((aula) => ({ sede, aula })))
+    .sort((a, b) => a.aula.inicio.localeCompare(b.aula.inicio) || a.sede.data.nome.localeCompare(b.sede.data.nome, 'pt-BR')),
+})).filter((d) => d.aulas.length);
+
+const turmas = [...new Set(sedes.flatMap((s) => s.data.horarios.flatMap((h) => (h.turma ? [h.turma] : []))))].sort((a, b) =>
+  a.localeCompare(b, 'pt-BR'),
+);
+const semHorario = sedes.filter((s) => !s.data.horarios.length);
+---
+
+<Base titulo="Horários de treino" descricao="Todos os horários de treino de jiu-jitsu das sedes da HJJT em Londrina e região, dia a dia.">
+  <div class="recuo horarios">
+    <h1 class="titulo horarios__titulo">Horários de treino</h1>
+    <p class="horarios__texto">
+      Todas as aulas das sedes da HJJT, dia a dia. Antes da primeira aula, confirme com a sede, porque os horários podem mudar.
+    </p>
+
+    <div class="controles">
+      <nav class="dias" aria-label="Dias da semana" data-dias>
+        {
+          porDia.map((d) => (
+            <a href={`#${d.id}`} data-dia={d.id}>
+              <span class="dias__curto">{d.curto}</span>
+              <span class="dias__longo">{d.longo}</span>
+            </a>
+          ))
+        }
+      </nav>
+      <div class="filtros-linha">
+        <label>
+          Região
+          <select data-filtro="regiao">
+            <option value="">Todas</option>
+            <option value="londrina">Londrina</option>
+            <option value="regiao">Região</option>
+            <option value="outros">Fora do Paraná</option>
+          </select>
+        </label>
+        <label>
+          Turma
+          <select data-filtro="turma">
+            <option value="">Todas</option>
+            {turmas.map((t) => <option value={t}>{t}</option>)}
+          </select>
+        </label>
+      </div>
+    </div>
+
+    {
+      porDia.map((d) => (
+        <section class="dia" id={d.id} aria-labelledby={`titulo-${d.id}`}>
+          <h2 class="titulo dia__titulo" id={`titulo-${d.id}`}>
+            {d.longo}
+          </h2>
+          <ol class="aulas">
+            {d.aulas.map(({ sede, aula }) => (
+              <li class="aula" data-regiao={regiao(sede)} data-turma={aula.turma ?? ''}>
+                <span class="aula__hora">
+                  {hora(aula.inicio)}
+                  {aula.fim && <span class="aula__fim">até {hora(aula.fim)}</span>}
+                </span>
+                <span class="aula__onde">
+                  <a href={`/sedes/${sede.id}/`}>{sede.data.nome}</a>
+                  <span class="aula__local">{local(sede)}</span>
+                </span>
+                <span class="aula__turma">
+                  {aula.turma}
+                  {aula.professor && <span class="aula__professor">com {aula.professor}</span>}
+                </span>
+              </li>
+            ))}
+          </ol>
+          <p class="dia__vazio" hidden>
+            Nenhuma aula com esses filtros neste dia.
+          </p>
+        </section>
+      ))
+    }
+
+    {
+      semHorario.length > 0 && (
+        <p class="sem-horario">
+          Sem horários no site:{' '}
+          {semHorario.map((s, i) => (
+            <>
+              {i > 0 && ', '}
+              <a href={`/sedes/${s.id}/`}>{s.data.nome}</a>
+            </>
+          ))}
+          . Fale direto com a sede.
+        </p>
+      )
+    }
+  </div>
+</Base>
+
+<script>
+  import { diaDeHoje } from '../lib/proximo';
+
+  // Com JavaScript, mostra um dia por vez (começando por hoje). Sem ele, a página lista a semana inteira.
+  const secoes = [...document.querySelectorAll<HTMLElement>('.dia')];
+  const abas = [...document.querySelectorAll<HTMLAnchorElement>('[data-dias] a')];
+  document.documentElement.classList.add('um-dia');
+
+  function escolher(id: string) {
+    const existe = secoes.some((s) => s.id === id);
+    const alvo = existe ? id : secoes[0].id;
+    for (const s of secoes) s.hidden = s.id !== alvo;
+    for (const a of abas) a.setAttribute('aria-current', a.dataset.dia === alvo ? 'true' : 'false');
+  }
+
+  for (const aba of abas) {
+    aba.addEventListener('click', (e) => {
+      e.preventDefault();
+      history.replaceState(null, '', `#${aba.dataset.dia}`);
+      escolher(aba.dataset.dia!);
+    });
+  }
+  escolher(location.hash.slice(1) || diaDeHoje());
+
+  const filtros = [...document.querySelectorAll<HTMLSelectElement>('[data-filtro]')];
+  function filtrar() {
+    const [regiao, turma] = filtros.map((f) => f.value);
+    for (const secao of secoes) {
+      let visiveis = 0;
+      for (const aula of secao.querySelectorAll<HTMLElement>('.aula')) {
+        const mostra = (!regiao || aula.dataset.regiao === regiao) && (!turma || aula.dataset.turma === turma);
+        aula.hidden = !mostra;
+        if (mostra) visiveis++;
+      }
+      secao.querySelector<HTMLElement>('.dia__vazio')!.hidden = visiveis > 0;
+    }
+  }
+  filtros.forEach((f) => f.addEventListener('change', filtrar));
+</script>
+
+<style>
+  .horarios {
+    padding-top: clamp(2rem, 6vw, 4rem);
+  }
+
+  .horarios__titulo {
+    font-size: clamp(3.25rem, 11vw, 7rem);
+    line-height: 0.86;
+  }
+
+  .horarios__texto {
+    max-width: 52ch;
+    margin-block: 1rem 2rem;
+    font-size: var(--t-18);
+  }
+
+  .controles {
+    position: sticky;
+    top: var(--altura-topo);
+    z-index: 10;
+    display: grid;
+    gap: 0.75rem;
+    padding-block: 0.75rem;
+    background: var(--branco);
+    border-bottom: 2px solid var(--preto);
+  }
+
+  .dias {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: 0.25rem;
+  }
+
+  .dias a {
+    padding: 0.6rem 0.25rem;
+    border-radius: 0.25rem;
+    background: var(--tatame);
+    text-align: center;
+    text-decoration: none;
+    font-weight: 700;
+  }
+
+  .dias a[aria-current='true'] {
+    background: var(--vermelho);
+    color: var(--branco);
+  }
+
+  .dias__longo {
+    display: none;
+  }
+
+  @media (min-width: 48rem) {
+    .dias__curto {
+      display: none;
+    }
+
+    .dias__longo {
+      display: inline;
+    }
+  }
+
+  .filtros-linha {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.5rem;
+  }
+
+  .filtros-linha label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--t-14);
+    font-weight: 600;
+  }
+
+  select {
+    min-height: 2.5rem;
+    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--linha);
+    border-radius: 0.25rem;
+    background: var(--branco);
+    font: inherit;
+    font-weight: 400;
+  }
+
+  .dia {
+    padding-top: 2rem;
+  }
+
+  .dia__titulo {
+    margin-bottom: 0.5rem;
+    font-size: var(--t-48);
+  }
+
+  /* Com um dia por vez o título repete a aba, então só aparece para leitores de tela. */
+  :global(.um-dia) .dia__titulo {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .aulas {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .aula {
+    display: grid;
+    grid-template-columns: 5.5rem 1fr;
+    gap: 0.25rem 1rem;
+    padding-block: 0.9rem;
+    border-bottom: 1px solid var(--linha);
+  }
+
+  @media (min-width: 48rem) {
+    .aula {
+      grid-template-columns: 7rem 1fr 14rem;
+      align-items: baseline;
+    }
+  }
+
+  .aula__hora {
+    font-stretch: 62%;
+    font-weight: 900;
+    font-style: italic;
+    font-size: var(--t-36);
+    line-height: 1;
+  }
+
+  .aula__fim {
+    display: block;
+    font-stretch: 100%;
+    font-style: normal;
+    font-weight: 400;
+    font-size: var(--t-12);
+    color: var(--grafite);
+  }
+
+  .aula__onde {
+    display: grid;
+  }
+
+  .aula__onde a {
+    font-weight: 700;
+    font-size: var(--t-18);
+    text-decoration: none;
+  }
+
+  .aula__onde a:hover {
+    text-decoration: underline;
+  }
+
+  .aula__local {
+    color: var(--grafite);
+    font-size: var(--t-14);
+  }
+
+  .aula__turma {
+    grid-column: 2;
+    font-weight: 600;
+  }
+
+  @media (min-width: 48rem) {
+    .aula__turma {
+      grid-column: 3;
+    }
+  }
+
+  .aula__turma:empty {
+    display: none;
+  }
+
+  .aula__professor {
+    display: block;
+    color: var(--grafite);
+    font-weight: 400;
+    font-size: var(--t-14);
+  }
+
+  .dia__vazio,
+  .sem-horario {
+    padding-block: 1.5rem;
+    color: var(--grafite);
+  }
+</style>

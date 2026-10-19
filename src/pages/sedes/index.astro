@@ -1,0 +1,321 @@
+---
+import Base from '../../layouts/Base.astro';
+import AcoesSede from '../../components/AcoesSede.astro';
+import Icone from '../../components/Icone.astro';
+import { getSedes, local, paraCliente, regiao } from '../../lib/sedes';
+
+const sedes = await getSedes();
+const cidades = new Set(sedes.map((s) => s.data.cidade));
+const filtros = [
+  { id: 'todas', texto: 'Todas', total: sedes.length },
+  { id: 'londrina', texto: 'Londrina', total: sedes.filter((s) => regiao(s) === 'londrina').length },
+  { id: 'regiao', texto: 'Região', total: sedes.filter((s) => regiao(s) === 'regiao').length },
+  { id: 'outros', texto: 'Fora do Paraná', total: sedes.filter((s) => regiao(s) === 'outros').length },
+].filter((f) => f.total > 0);
+
+---
+
+<Base titulo="Sedes" descricao="Todas as sedes da HJJT em Londrina e região no mapa, com horários, responsáveis e contato.">
+  <section class="localizador" aria-labelledby="titulo-pagina">
+    <div class="abertura">
+      <h1 class="titulo abertura__titulo" id="titulo-pagina">Nossas sedes</h1>
+      <p class="abertura__texto">
+        {sedes.length} lugares para treinar jiu-jitsu com a HJJT em Londrina e em mais {cidades.size - 1} cidades.
+        Ache o mais perto de você e veja quando é o próximo treino.
+      </p>
+      <div class="acoes">
+        <button type="button" class="acao acao--forte" data-perto hidden>
+          <Icone nome="local" />
+          Sedes perto de mim
+        </button>
+        <a class="acao" href="/horarios/">Ver todos os horários</a>
+      </div>
+      <p class="abertura__aviso" data-aviso role="status"></p>
+    </div>
+
+    <div class="localizador__mapa">
+      <div class="mapa" data-mapa data-sedes={JSON.stringify(sedes.map(paraCliente))}></div>
+    </div>
+
+    <div class="localizador__lista">
+      <div class="filtros" role="group" aria-label="Filtrar sedes por região">
+        {
+          filtros.map((f, i) => (
+            <button type="button" class="filtro" data-filtro={f.id} aria-pressed={i === 0 ? 'true' : 'false'}>
+              {f.texto} <span class="filtro__total">{f.total}</span>
+            </button>
+          ))
+        }
+      </div>
+
+      <ol class="sedes" data-lista>
+        {
+          sedes.map((sede) => (
+            <li class="sede" data-id={sede.id} data-regiao={regiao(sede)}>
+              <div class="sede__cabeca">
+                <h2 class="titulo sede__nome">
+                  <a href={`/sedes/${sede.id}/`}>{sede.data.nome}</a>
+                </h2>
+                <span class="sede__distancia" data-distancia />
+              </div>
+              <p class="sede__local">{local(sede)}</p>
+              <p class="sede__proximo" data-proximo>
+                {sede.data.horarios.length ? (
+                  <a href={`/sedes/${sede.id}/`}>Ver horários</a>
+                ) : (
+                  'Horários com o responsável'
+                )}
+              </p>
+              <div class="sede__acoes">
+                <AcoesSede sede={sede} />
+                <button type="button" class="acao sede__ver" data-ver={sede.id}>
+                  Mostrar no mapa
+                </button>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+</Base>
+
+<script>
+  import { criarMapa } from '../../scripts/mapa';
+  import { proximoTreino } from '../../lib/proximo';
+  import { distanciaKm } from '../../lib/distancia';
+  import type { SedeCliente } from '../../lib/sedes';
+
+  const el = document.querySelector<HTMLElement>('[data-mapa]')!;
+  const sedes: SedeCliente[] = JSON.parse(el.dataset.sedes!);
+  const porId = new Map(sedes.map((s) => [s.id, s]));
+  const mapa = criarMapa(el, sedes);
+  const lista = document.querySelector<HTMLOListElement>('[data-lista]')!;
+  const itens = [...lista.querySelectorAll<HTMLLIElement>('.sede')];
+  const aviso = document.querySelector<HTMLElement>('[data-aviso]')!;
+  const telaEstreita = matchMedia('(max-width: 60rem)');
+
+  // Próximo treino de cada sede
+  for (const item of itens) {
+    const texto = proximoTreino(porId.get(item.dataset.id!)!);
+    if (texto) item.querySelector('[data-proximo]')!.textContent = `Próximo treino: ${texto}`;
+  }
+
+  // Filtro por região
+  const botoesFiltro = [...document.querySelectorAll<HTMLButtonElement>('[data-filtro]')];
+  for (const botao of botoesFiltro) {
+    botao.addEventListener('click', () => {
+      botoesFiltro.forEach((b) => b.setAttribute('aria-pressed', String(b === botao)));
+      const filtro = botao.dataset.filtro;
+      const visiveis = new Set<string>();
+      for (const item of itens) {
+        const mostra = filtro === 'todas' || item.dataset.regiao === filtro;
+        item.hidden = !mostra;
+        if (mostra) visiveis.add(item.dataset.id!);
+      }
+      mapa.mostrar(visiveis);
+      mapa.enquadrar(filtro === 'todas' ? undefined : visiveis);
+    });
+  }
+
+  // Mostrar no mapa
+  lista.addEventListener('click', (e) => {
+    const botao = (e.target as Element).closest<HTMLButtonElement>('[data-ver]');
+    if (!botao) return;
+    if (telaEstreita.matches) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    mapa.focar(botao.dataset.ver!);
+  });
+
+  // Perto de mim: ordena a lista pela distância até a pessoa
+  const botaoPerto = document.querySelector<HTMLButtonElement>('[data-perto]')!;
+  if ('geolocation' in navigator) botaoPerto.hidden = false;
+
+  botaoPerto.addEventListener('click', () => {
+    aviso.textContent = 'Buscando sua localização…';
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        const eu: [number, number] = [coords.latitude, coords.longitude];
+        const ordenados = itens
+          .map((item) => ({ item, km: distanciaKm(eu, porId.get(item.dataset.id!)!.coordenadas) }))
+          .sort((a, b) => a.km - b.km);
+        for (const { item, km } of ordenados) {
+          item.querySelector('[data-distancia]')!.textContent =
+            km < 10 ? `${km.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} km` : `${Math.round(km)} km`;
+          lista.append(item);
+        }
+        botoesFiltro.find((b) => b.dataset.filtro === 'todas')?.click();
+        mapa.marcarUsuario(eu);
+        mapa.enquadrar(new Set(ordenados.slice(0, 3).map((o) => o.item.dataset.id!)), eu);
+        aviso.textContent = `A mais perto é ${porId.get(ordenados[0].item.dataset.id!)!.nome}, a ${ordenados[0].item.querySelector('[data-distancia]')!.textContent}.`;
+      },
+      () => {
+        aviso.textContent = 'Não foi possível pegar sua localização. Libere o acesso no navegador ou use os filtros abaixo.';
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 },
+    );
+  });
+</script>
+
+<style>
+  /* Celular: abertura, mapa, lista. Telas largas: abertura e lista à esquerda, mapa fixo à direita. */
+  .localizador {
+    display: grid;
+    grid-template-areas: 'abertura' 'mapa' 'lista';
+    max-width: 96rem;
+    margin-inline: auto;
+  }
+
+  @media (min-width: 60rem) {
+    .localizador {
+      grid-template-columns: minmax(28rem, 5fr) 7fr;
+      grid-template-areas: 'abertura mapa' 'lista mapa';
+      grid-template-rows: auto 1fr;
+    }
+  }
+
+  .abertura {
+    grid-area: abertura;
+    padding: clamp(2rem, 6vw, 4rem) var(--gutter) 1.5rem;
+  }
+
+  .abertura__titulo {
+    font-size: clamp(3.5rem, 13vw, 7.5rem);
+    line-height: 0.86;
+    letter-spacing: -0.01em;
+  }
+
+  .abertura__texto {
+    max-width: 38ch;
+    margin-block: 1.25rem 1.5rem;
+    font-size: var(--t-18);
+  }
+
+  .abertura__aviso {
+    margin-top: 0.75rem;
+    min-height: 1.5em;
+    color: var(--grafite);
+    font-size: var(--t-14);
+  }
+
+  .localizador__mapa {
+    grid-area: mapa;
+  }
+
+  .mapa {
+    height: 60vh;
+    min-height: 20rem;
+    background: var(--tatame);
+  }
+
+  @media (min-width: 60rem) {
+    .mapa {
+      position: sticky;
+      top: var(--altura-topo);
+      height: calc(100vh - var(--altura-topo));
+    }
+  }
+
+  .localizador__lista {
+    grid-area: lista;
+    padding-inline: var(--gutter);
+  }
+
+  .filtros {
+    position: sticky;
+    top: var(--altura-topo);
+    z-index: 500;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-block: 1rem;
+    background: var(--branco);
+    border-bottom: 1px solid var(--linha);
+  }
+
+  .filtro {
+    min-height: 2.5rem;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--linha);
+    border-radius: 2rem;
+    background: var(--branco);
+    font: inherit;
+    font-size: var(--t-14);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .filtro[aria-pressed='true'] {
+    background: var(--preto);
+    border-color: var(--preto);
+    color: var(--branco);
+  }
+
+  .filtro__total {
+    margin-left: 0.25rem;
+    font-weight: 400;
+    opacity: 0.7;
+  }
+
+  .sedes {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sede {
+    padding-block: 1.5rem;
+    border-bottom: 1px solid var(--linha);
+  }
+
+  .sede__cabeca {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .sede__nome {
+    font-size: var(--t-36);
+    line-height: 0.95;
+  }
+
+  .sede__nome a {
+    text-decoration: none;
+  }
+
+  .sede__nome a:hover {
+    color: var(--vermelho-texto);
+  }
+
+  .sede__distancia {
+    flex: none;
+    font-weight: 700;
+    font-size: var(--t-14);
+  }
+
+  .sede__local {
+    margin-top: 0.35rem;
+    color: var(--grafite);
+  }
+
+  .sede__proximo {
+    margin-block: 0.5rem 1rem;
+    font-weight: 600;
+  }
+
+  .sede__acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .sede__acoes :global(.acoes) {
+    display: contents;
+  }
+
+  .sede__ver {
+    border-color: var(--linha);
+  }
+
+</style>

@@ -1,6 +1,0 @@
-safe:        false
-baseurl:     /
-post_dirs:   false
-url:         http://localhost:4000
-
-exclude: ['config', 'Gemfile', 'Gemfile.lock', "Procfile", "README.txt"]

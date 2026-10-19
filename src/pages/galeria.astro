@@ -1,0 +1,69 @@
+---
+import Base from '../layouts/Base.astro';
+import Galeria from '../components/Galeria.astro';
+import VideoYoutube from '../components/VideoYoutube.astro';
+import { getAlbuns } from '../lib/fotos';
+import { videos } from '../data/site';
+
+const albuns = getAlbuns();
+---
+
+<Base titulo="Fotos e vídeos" descricao="Fotos e vídeos de seminários, graduações e treinos da HJJT – Horse Jiu-Jitsu Team.">
+  <div class="recuo galeria-pagina">
+    <h1 class="titulo galeria-pagina__titulo">Fotos e vídeos</h1>
+
+    <section aria-labelledby="titulo-videos">
+      <h2 class="album__titulo" id="titulo-videos">Vídeos</h2>
+      <div class="videos">
+        {videos.map((v) => <VideoYoutube {...v} />)}
+      </div>
+    </section>
+
+    {
+      albuns.map((album) => (
+        <section aria-labelledby={`album-${album.pasta}`}>
+          <h2 class="album__titulo" id={`album-${album.pasta}`}>
+            {album.titulo} <span class="album__total">{album.fotos.length} fotos</span>
+          </h2>
+          <Galeria fotos={album.fotos} titulo={album.titulo} />
+        </section>
+      ))
+    }
+  </div>
+</Base>
+
+<style>
+  .galeria-pagina {
+    padding-top: clamp(2rem, 6vw, 4rem);
+  }
+
+  .galeria-pagina__titulo {
+    margin-bottom: 1rem;
+    font-size: clamp(3.25rem, 11vw, 7rem);
+    line-height: 0.86;
+  }
+
+  section {
+    margin-top: 3rem;
+  }
+
+  .album__titulo {
+    margin-bottom: 1rem;
+    padding-top: 0.75rem;
+    border-top: 2px solid var(--preto);
+    font-size: var(--t-24);
+    font-weight: 800;
+  }
+
+  .album__total {
+    color: var(--grafite);
+    font-size: var(--t-14);
+    font-weight: 400;
+  }
+
+  .videos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: 1.5rem;
+  }
+</style>

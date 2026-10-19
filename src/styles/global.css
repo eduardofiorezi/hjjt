@@ -1,0 +1,297 @@
+@import '@fontsource-variable/archivo/wdth.css';
+@import '@fontsource-variable/archivo/wdth-italic.css';
+
+:root {
+  /* Cores da marca: o vermelho é o do logo. */
+  --vermelho: #ed1c24;
+  --vermelho-texto: #c4121a; /* vermelho com contraste suficiente para texto pequeno */
+  --preto: #000;
+  --branco: #fff;
+  --tatame: #eef0f2;
+  --linha: #d5d8dc;
+  --grafite: #5b5f66;
+
+  --fonte: 'Archivo Variable', 'Arial Narrow', Arial, sans-serif;
+
+  /* Escala tipográfica clássica (Bringhurst) */
+  --t-12: 0.75rem;
+  --t-14: 0.875rem;
+  --t-16: 1rem;
+  --t-18: 1.125rem;
+  --t-21: 1.3125rem;
+  --t-24: 1.5rem;
+  --t-36: 2.25rem;
+  --t-48: 3rem;
+
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --largura: 76rem;
+  --altura-topo: 0px; /* o topo rola com a página */
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--altura-topo) + 1rem);
+}
+
+body {
+  margin: 0;
+  background: var(--branco);
+  color: var(--preto);
+  font-family: var(--fonte);
+  font-size: var(--t-16);
+  line-height: 1.5;
+  font-stretch: 100%;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: inherit;
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
+}
+
+a:hover {
+  text-decoration-color: var(--vermelho);
+}
+
+:focus-visible {
+  outline: 3px solid var(--vermelho);
+  outline-offset: 2px;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  line-height: 1.05;
+}
+
+p {
+  margin: 0;
+}
+
+/* A voz da marca: extra-condensada, pesada e inclinada como o logo. */
+.titulo {
+  font-stretch: 62%;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: -0.005em;
+  text-wrap: balance;
+}
+
+.recuo {
+  width: 100%;
+  max-width: var(--largura);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Botões e links de ação */
+.acao {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  min-height: 2.75rem;
+  padding: 0.55rem 1rem;
+  border: 2px solid var(--preto);
+  border-radius: 0.25rem;
+  background: var(--branco);
+  color: var(--preto);
+  font: inherit;
+  font-weight: 650;
+  font-size: var(--t-14);
+  line-height: 1.1;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.acao:hover {
+  background: var(--tatame);
+}
+
+.acao--forte {
+  background: var(--vermelho);
+  border-color: var(--vermelho);
+  color: var(--branco);
+}
+
+.acao--forte:hover {
+  background: var(--vermelho-texto);
+  border-color: var(--vermelho-texto);
+}
+
+.acao svg {
+  width: 1.1em;
+  height: 1.1em;
+  flex: none;
+}
+
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Mapa (Leaflet cria esses elementos dinamicamente) */
+.leaflet-container {
+  font-family: var(--fonte);
+}
+
+.leaflet-tile-pane {
+  filter: grayscale(1) contrast(1.05) brightness(1.02);
+}
+
+.pino span {
+  position: absolute;
+  inset: 0;
+  border: 3px solid var(--branco);
+  border-radius: 50% 50% 50% 0;
+  background: var(--vermelho);
+  rotate: -45deg;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.35);
+}
+
+.pino--destaque span {
+  background: var(--preto);
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 0.25rem;
+}
+
+.leaflet-popup-content {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0.9rem 1rem;
+  font-size: var(--t-14);
+  line-height: 1.35;
+}
+
+.popup__nome {
+  font-stretch: 62%;
+  font-weight: 900;
+  font-style: italic;
+  font-size: var(--t-24);
+  line-height: 1;
+}
+
+.popup__local {
+  color: var(--grafite);
+}
+
+.popup__proximo {
+  margin-top: 0.25rem;
+  font-weight: 600;
+}
+
+.leaflet-container a.popup__link {
+  margin-top: 0.35rem;
+  color: var(--vermelho-texto);
+  font-weight: 600;
+}
+
+/* Lightbox de fotos e vídeos (src/scripts/lightbox.ts) */
+.lightbox {
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 3.5rem 1rem;
+  border: 0;
+  background: rgb(0 0 0 / 0.94);
+  color: var(--branco);
+}
+
+.lightbox::backdrop {
+  background: transparent;
+}
+
+.lightbox__palco {
+  height: calc(100% - 2rem);
+}
+
+.lightbox img,
+.lightbox iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: contain;
+}
+
+.lightbox p {
+  margin-top: 0.5rem;
+  text-align: center;
+  font-size: var(--t-14);
+}
+
+.lightbox button {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.12);
+  color: var(--branco);
+  font: 400 2rem/1 var(--fonte);
+  cursor: pointer;
+}
+
+.lightbox button:hover {
+  background: var(--vermelho);
+}
+
+.lightbox [data-acao='anterior'] {
+  top: 50%;
+  left: 1rem;
+}
+
+.lightbox [data-acao='proxima'] {
+  top: 50%;
+  right: 1rem;
+}
+
+.lightbox [data-acao='fechar'] {
+  top: 0.5rem;
+  right: 1rem;
+}

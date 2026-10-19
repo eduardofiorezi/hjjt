@@ -1,2 +1,5 @@
-*/.DS_Store
-_jekyll_s3.yml
+dist/
+.astro/
+node_modules/
+.DS_Store
+.env

@@ -1,0 +1,249 @@
+---
+import '../styles/global.css';
+import { Image } from 'astro:assets';
+import logo from '../assets/marca/logo.png';
+import logoIron from '../assets/legado/footer-logo-iron.png';
+import logoSnc from '../assets/legado/footer-logo-snc.png';
+import logoStorm from '../assets/legado/footer-logo-storm.png';
+import logoRodolfo from '../assets/legado/footer-logo-rodolfo.png';
+import { site } from '../data/site';
+
+interface Props {
+  titulo?: string;
+  descricao?: string;
+  jsonLd?: object | object[];
+  /** Páginas internas ficam num painel claro sobre o fundo escuro; a home desenha o próprio layout. */
+  painel?: boolean;
+}
+
+const { titulo, descricao = site.descricao, jsonLd, painel = true } = Astro.props;
+const tituloCompleto = titulo ? `${titulo} | HJJT` : `HJJT – ${site.nome}`;
+const canonico = new URL(Astro.url.pathname, Astro.site).href;
+const caminho = Astro.url.pathname;
+
+const equipe = {
+  '@context': 'https://schema.org',
+  '@type': 'SportsOrganization',
+  '@id': `${site.url}/#equipe`,
+  name: site.nome,
+  alternateName: site.sigla,
+  sport: 'Brazilian Jiu-Jitsu',
+  url: `${site.url}/`,
+  logo: `${site.url}/apple-touch-icon.png`,
+  email: site.email,
+  sameAs: [site.facebook, site.instagram].filter(Boolean),
+};
+const blocosJsonLd = [equipe, ...(Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [])];
+
+const menu = [
+  { href: '/', texto: 'Início' },
+  { href: '/sedes/', texto: 'Sedes' },
+  { href: '/horarios/', texto: 'Horários' },
+  { href: '/galeria/', texto: 'Galeria' },
+];
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{tituloCompleto}</title>
+    <meta name="description" content={descricao} />
+    <link rel="canonical" href={canonico} />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="theme-color" content="#000000" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content={`HJJT – ${site.nome}`} />
+    <meta property="og:title" content={tituloCompleto} />
+    <meta property="og:description" content={descricao} />
+    <meta property="og:url" content={canonico} />
+    <meta property="og:image" content={new URL('/og.jpg', Astro.site).href} />
+    <meta name="generator" content={Astro.generator} />
+    {blocosJsonLd.map((bloco) => <script type="application/ld+json" set:html={JSON.stringify(bloco)} />)}
+  </head>
+  <body>
+    <a class="pular sr-only" href="#conteudo">Pular para o conteúdo</a>
+    <div class="pagina">
+      <header class="topo">
+        <a href="/" class="topo__logo" aria-label="HJJT, página inicial">
+          <Image src={logo} alt="" width={209} loading="eager" />
+        </a>
+        <nav aria-label="Principal">
+          <ul>
+            {
+              menu.map((item) => (
+                <li>
+                  <a href={item.href} aria-current={caminho === item.href ? 'page' : undefined}>
+                    {item.texto}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </header>
+
+      <main id="conteudo" class:list={{ painel }}>
+        <slot />
+      </main>
+
+      <footer class="rodape">
+        <div class="rodape__faixa">
+          <a href="http://www.irongymnasium.com.br/" target="_blank" rel="noopener" class="rodape__item">
+            <Image src={logoIron} alt="Iron Gymnasium" />
+          </a>
+          <div class="rodape__item rodape__contato">
+            <p><b>Entre em contato conosco</b></p>
+            <p>Nosso e-mail:</p>
+            <p><a href={`mailto:${site.email}`}>{site.email}</a></p>
+          </div>
+          <div class="rodape__item"><Image src={logoSnc} alt="SNC" /></div>
+          <div class="rodape__item"><Image src={logoStorm} alt="Storm Strong Fight Co." /></div>
+          <div class="rodape__item"><Image src={logoRodolfo} alt="Rodolfo Peres Nutrição Esportiva" /></div>
+        </div>
+        <p class="rodape__legal">
+          © {new Date().getFullYear()} Horse Jiu-Jitsu Team.{' '}
+          <a href={site.facebook} target="_blank" rel="noopener">Facebook</a>
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>
+
+<style>
+  :global(body) {
+    background: #000 url('../assets/legado/page-bg-site.jpg') top center no-repeat;
+    color: #ccc;
+  }
+
+  .pular:focus {
+    position: fixed;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 2000;
+    width: auto;
+    height: auto;
+    clip: auto;
+    padding: 0.5rem 1rem;
+    background: var(--branco);
+    color: var(--preto);
+  }
+
+  .pagina {
+    width: 100%;
+    max-width: 1036px;
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  @media (min-width: 1100px) {
+    .pagina {
+      padding-inline: 0;
+    }
+  }
+
+  .topo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    padding-block: clamp(1rem, 4vw, 3.25rem) 1.25rem;
+  }
+
+  .topo__logo {
+    display: block;
+    width: clamp(120px, 30vw, 209px);
+  }
+
+
+  .topo__logo img {
+    width: 100%;
+    height: auto;
+  }
+
+  .topo ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .topo nav a {
+    display: block;
+    padding-block: 0.4rem;
+    color: var(--branco);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .topo nav a:hover,
+  .topo nav a[aria-current='page'] {
+    text-decoration: underline;
+    text-decoration-color: var(--vermelho);
+    text-decoration-thickness: 3px;
+    text-underline-offset: 0.4em;
+  }
+
+  .painel {
+    padding-bottom: clamp(2rem, 5vw, 3rem);
+    background: var(--branco);
+    color: var(--preto);
+  }
+
+  .rodape {
+    margin-top: 20px;
+    padding-bottom: 2rem;
+  }
+
+  .rodape__faixa {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: #151515;
+  }
+
+  .rodape__item {
+    padding: 0.75rem 1.25rem;
+  }
+
+  @media (min-width: 48rem) {
+    .rodape__faixa {
+      flex-wrap: nowrap;
+      justify-content: space-between;
+    }
+
+    .rodape__item + .rodape__item {
+      border-left: 1px solid #2a2a2a;
+    }
+  }
+
+  .rodape__item img {
+    max-height: 53px;
+    width: auto;
+  }
+
+  .rodape__contato {
+    font-size: var(--t-14);
+    line-height: 1.5;
+  }
+
+  .rodape__contato a,
+  .rodape__legal a {
+    color: #ccc;
+  }
+
+  .rodape__legal {
+    margin-top: 1rem;
+    font-size: var(--t-12);
+    text-align: center;
+  }
+</style>

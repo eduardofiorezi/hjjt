@@ -1,0 +1,31 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base titulo="Página não encontrada">
+  <div class="recuo nao-achou">
+    <h1 class="titulo">Essa página saiu do tatame</h1>
+    <p>O endereço pode ter mudado. Comece pela lista de sedes ou pelos horários.</p>
+    <div class="acoes">
+      <a class="acao acao--forte" href="/sedes/">Ver as sedes</a>
+      <a class="acao" href="/horarios/">Ver os horários</a>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .nao-achou {
+    padding-block: clamp(3rem, 10vw, 6rem);
+  }
+
+  h1 {
+    max-width: 12ch;
+    font-size: clamp(3rem, 10vw, 6rem);
+    line-height: 0.88;
+  }
+
+  p {
+    margin-block: 1.25rem 1.5rem;
+    font-size: var(--t-18);
+  }
+</style>

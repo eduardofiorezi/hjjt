@@ -1,0 +1,449 @@
+---
+import { Image, getImage } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import sensei from '../assets/marca/sensei-suzuki.png';
+import iconeRelogio from '../assets/legado/content-icon-relogio.png';
+import iconeVideo from '../assets/legado/content-icon-video.png';
+import iconeFoto from '../assets/legado/content-icon-foto.png';
+import play from '../assets/legado/content-video-play.png';
+import { getSedes } from '../lib/sedes';
+import { getAlbuns } from '../lib/fotos';
+import { videos } from '../data/site';
+
+import rodolfo7 from '../assets/fotos/seminario-rodolfo-vieira/7.jpg';
+import wandCapa from '../assets/fotos/seminario-wanderlei-silva/capa.jpg';
+import shogun1 from '../assets/fotos/destaque/shogun-1.jpg';
+import shogun2 from '../assets/fotos/destaque/shogun-2.jpg';
+import royler1 from '../assets/fotos/seminario-royler-gracie/1.jpg';
+import royler2 from '../assets/fotos/seminario-royler-gracie/2.jpg';
+import royler3 from '../assets/fotos/seminario-royler-gracie/3.jpg';
+import equipe2 from '../assets/fotos/destaque/equipe-2.jpg';
+import equipe3 from '../assets/fotos/destaque/equipe-3.jpg';
+import equipe4 from '../assets/fotos/destaque/equipe-4.jpg';
+
+// Mesma sequência do banner do site antigo.
+const slides = [rodolfo7, wandCapa, shogun1, shogun2, royler1, royler2, royler3, equipe2, equipe3, equipe4];
+
+const sedes = await getSedes();
+
+// A faixa de imagens mostra todos os álbuns da galeria.
+const fotos = getAlbuns()
+  .flatMap((a) => a.fotos.map((foto, i) => ({ foto, alt: `${a.titulo}, foto ${i + 1}` })));
+const grandes = await Promise.all(fotos.map(({ foto }) => getImage({ src: foto, width: Math.min(foto.width, 1600), format: 'webp' })));
+---
+
+<Base painel={false}>
+  <h1 class="sr-only">HJJT – Horse Jiu-Jitsu Team, jiu-jitsu em Londrina e região</h1>
+  <section class="destaque" aria-label="Destaques">
+    <div class="slides" data-slides>
+      {
+        slides.map((foto, i) => (
+          <Image
+            src={foto}
+            alt=""
+            widths={[632, 1264]}
+            sizes="(min-width: 64rem) 632px, 100vw"
+            loading={i === 0 ? 'eager' : 'lazy'}
+            class:list={{ ativo: i === 0 }}
+          />
+        ))
+      }
+    </div>
+
+    <div class="sensei" id="sensei">
+      <Image src={sensei} alt="Sensei Liogi Suzuki de kimono branco e faixa vermelha" width={341} loading="eager" />
+      <div class="sensei__texto">
+        <h2>Sensei<br />Liogi Suzuki</h2>
+        <p><b>Nascido em Lins, São Paulo,</b></p>
+        <p>em 9 de julho de 1943,</p>
+        <p><b>é uma lenda viva do</b></p>
+        <p>judô brasileiro</p>
+      </div>
+    </div>
+
+    <blockquote class="frase">
+      <p>O corpo envelhece sem a sua permissão... A alma só envelhece se você permitir!</p>
+    </blockquote>
+
+    <a class="selo" href="/horarios/">
+      <Image src={iconeRelogio} alt="" />
+      <span>Horário<br />de treinos</span>
+    </a>
+
+    <div class="chamada-sedes">
+      <p class="chamada-sedes__titulo">{sedes.length} sedes em Londrina e região</p>
+      <a class="acao acao--forte" href="/sedes/">Encontre a mais perto de você</a>
+    </div>
+  </section>
+
+  <section class="faixa faixa--videos" aria-labelledby="titulo-videos">
+    <h2 class="faixa__rotulo" id="titulo-videos">
+      <Image src={iconeVideo} alt="" />
+      Vídeos
+    </h2>
+    <div class="faixa__carrossel">
+      <button type="button" class="faixa__seta faixa__seta--esq" data-rolar="-1" aria-label="Vídeos anteriores"></button>
+      <ul class="faixa__trilho" data-galeria>
+        {
+          videos.map((v) => (
+            <li>
+              <a
+                href={`https://www.youtube.com/watch?v=${v.id}`}
+                data-video-modal={v.id}
+                data-titulo={v.titulo}
+                style={`background-image: url(https://i.ytimg.com/vi/${v.id}/hqdefault.jpg)`}
+              >
+                <Image src={play} alt={`Assistir: ${v.titulo}`} />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <button type="button" class="faixa__seta faixa__seta--dir" data-rolar="1" aria-label="Próximos vídeos"></button>
+    </div>
+  </section>
+
+  <section class="faixa faixa--fotos" aria-labelledby="titulo-fotos">
+    <h2 class="faixa__rotulo" id="titulo-fotos">
+      <Image src={iconeFoto} alt="" />
+      Imagens
+    </h2>
+    <div class="faixa__carrossel">
+      <button type="button" class="faixa__seta faixa__seta--esq" data-rolar="-1" aria-label="Imagens anteriores"></button>
+      <ul class="faixa__trilho" data-galeria>
+        {
+          fotos.map(({ foto, alt }, i) => (
+            <li>
+              <a href={grandes[i].src} data-foto>
+                <Image src={foto} alt={alt} width={316} />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <button type="button" class="faixa__seta faixa__seta--dir" data-rolar="1" aria-label="Próximas imagens"></button>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import '../scripts/lightbox';
+
+  // Banner: troca a foto a cada 4 segundos (parado para quem prefere menos movimento).
+  const slides = [...document.querySelectorAll<HTMLImageElement>('[data-slides] img')];
+  if (slides.length > 1 && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    let atual = 0;
+    setInterval(() => {
+      slides[atual].classList.remove('ativo');
+      atual = (atual + 1) % slides.length;
+      slides[atual].classList.add('ativo');
+    }, 4000);
+  }
+
+  // Setas das faixas de vídeos e imagens
+  document.querySelectorAll<HTMLButtonElement>('[data-rolar]').forEach((seta) => {
+    seta.addEventListener('click', () => {
+      const trilho = seta.parentElement!.querySelector<HTMLElement>('.faixa__trilho')!;
+      trilho.scrollBy({ left: Number(seta.dataset.rolar) * trilho.clientWidth, behavior: 'smooth' });
+    });
+  });
+</script>
+
+<style>
+  /* Celular: tudo empilhado. A partir de 64rem, a composição do site antigo (posições do layout de 1036px). */
+  .destaque {
+    display: grid;
+    gap: 1.25rem;
+    margin-bottom: 18px;
+  }
+
+  .slides {
+    position: relative;
+    aspect-ratio: 632 / 416;
+    overflow: hidden;
+    background: #111;
+  }
+
+  .slides img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+
+  .slides img.ativo {
+    opacity: 1;
+  }
+
+  .sensei {
+    position: relative;
+    width: 341px;
+    max-width: 100%;
+    color: var(--branco);
+  }
+
+  .sensei__texto {
+    position: absolute;
+    left: 10px;
+    bottom: 12px;
+    width: 220px;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .sensei h2 {
+    margin-bottom: 0.15rem;
+    font-size: var(--t-16);
+    font-weight: 800;
+    line-height: 1.15;
+    text-transform: uppercase;
+  }
+
+  .frase {
+    margin: 0;
+    padding: 1.25rem 1.5rem;
+    background: #0d0d0d;
+    color: #ccc;
+  }
+
+  .selo {
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    width: 201px;
+    height: 228px;
+    padding-top: 45px;
+    background: url('../assets/legado/content-bg-top-horario.png') center / contain no-repeat;
+    color: #333;
+    font-size: var(--t-18);
+    font-weight: 800;
+    line-height: 1.15;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .selo img {
+    margin-bottom: 0.6rem;
+  }
+
+  .selo:hover span {
+    color: var(--vermelho-texto);
+  }
+
+  .chamada-sedes {
+    display: grid;
+    justify-items: start;
+    gap: 0.75rem;
+    padding: 1.25rem 1.5rem;
+    border-left: 4px solid var(--vermelho);
+    background: rgb(0 0 0 / 0.6);
+  }
+
+  .chamada-sedes__titulo {
+    color: var(--branco);
+    font-size: var(--t-18);
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+  @media (max-width: 63.99rem) {
+    .destaque {
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: center;
+    }
+
+    .slides,
+    .sensei,
+    .frase {
+      grid-column: 1 / -1;
+    }
+
+    .selo {
+      align-self: end;
+      width: 150px;
+      height: 170px;
+      padding-top: 30px;
+      font-size: var(--t-16);
+    }
+
+    .selo img {
+      width: 52px;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .destaque {
+      position: relative;
+      display: block;
+      height: 610px;
+    }
+
+    .slides {
+      position: absolute;
+      top: 0;
+      left: 250px;
+      width: 632px;
+      height: 416px;
+    }
+
+    .sensei {
+      position: absolute;
+      top: 100px;
+      left: 0;
+    }
+
+    .frase {
+      position: absolute;
+      top: 465px;
+      left: 85px;
+      width: 460px;
+      height: 123px;
+      padding: 20px 0 0 85px;
+      background: url('../assets/legado/header-bg-desc-helio.png') top center no-repeat;
+    }
+
+    .frase p {
+      width: 360px;
+    }
+
+    .selo {
+      position: absolute;
+      top: 267px;
+      left: 822px;
+    }
+
+    .chamada-sedes {
+      position: absolute;
+      top: 500px;
+      right: 0;
+      width: 440px;
+      padding: 0.9rem 1.25rem;
+    }
+  }
+
+  /* Faixas vermelhas de vídeos e imagens */
+  .faixa {
+    display: flex;
+    align-items: center;
+    min-height: 149px;
+    margin-top: 20px;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+  }
+
+  .faixa--videos {
+    background-image: url('../assets/legado/content-bg-list-video-bg.png');
+  }
+
+  .faixa--fotos {
+    background-image: url('../assets/legado/content-bg-list-foto-bg.png');
+  }
+
+  .faixa__rotulo {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    flex: none;
+    width: 143px;
+    height: 165px;
+    margin-block: -14px;
+    background: url('../assets/legado/content-bg-list-videos.png') center / contain no-repeat;
+    color: #0e0e0e;
+    font-size: var(--t-18);
+    font-weight: 800;
+  }
+
+  .faixa--fotos .faixa__rotulo {
+    background-image: url('../assets/legado/content-bg-list-imagens.png');
+  }
+
+  .faixa__rotulo img {
+    width: 58px;
+    margin-bottom: 0.25rem;
+  }
+
+  .faixa__carrossel {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+    max-width: 750px;
+    margin-left: clamp(0.5rem, 3vw, 30px);
+    padding-right: 0.5rem;
+  }
+
+  .faixa__seta {
+    flex: none;
+    width: 13px;
+    height: 124px;
+    border: 0;
+    background: #800000 url('../assets/legado/content-seta-left.jpg') center no-repeat;
+    cursor: pointer;
+  }
+
+  .faixa__seta--dir {
+    background-image: url('../assets/legado/content-seta-right.jpg');
+  }
+
+  .faixa__trilho {
+    display: flex;
+    gap: 8px;
+    min-width: 0;
+    max-width: 696px; /* 4 miniaturas, como no site antigo */
+    margin: 0;
+    padding: 0 4px;
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .faixa__trilho::-webkit-scrollbar {
+    display: none;
+  }
+
+  .faixa__trilho li {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+
+  .faixa__trilho a {
+    display: block;
+    width: 166px;
+    height: 122px;
+    border: 4px solid #ccc;
+    background: #000 center / cover no-repeat;
+    overflow: hidden;
+  }
+
+  .faixa__trilho a img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .faixa__trilho a:hover {
+    border-color: var(--branco);
+  }
+
+  @media (max-width: 40rem) {
+    .faixa__rotulo {
+      width: 100px;
+      height: 115px;
+      font-size: var(--t-14);
+    }
+
+    .faixa__rotulo img {
+      width: 40px;
+    }
+
+    .faixa__seta {
+      display: none;
+    }
+  }
+</style>
